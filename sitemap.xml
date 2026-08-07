@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://prohouse-sa.github.io/</loc>
+    <loc>https://prohouse.sa/</loc>
     <lastmod>2026-08-07</lastmod>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://prohouse-sa.github.io/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://prohouse-sa.github.io/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://prohouse-sa.github.io/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://prohouse.sa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://prohouse.sa/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://prohouse.sa/"/>
   </url>
   <url>
-    <loc>https://prohouse-sa.github.io/healthy-meals-jeddah/</loc>
-    <lastmod>2026-08-07</lastmod>
-  </url>
-  <url>
-    <loc>https://prohouse-sa.github.io/meal-subscriptions-jeddah/</loc>
+    <loc>https://prohouse.sa/healthy-meals-jeddah/</loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc>https://prohouse-sa.github.io/menu/</loc>
+    <loc>https://prohouse.sa/meal-subscriptions-jeddah/</loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc>https://prohouse-sa.github.io/branches/al-rawdah/</loc>
+    <loc>https://prohouse.sa/menu/</loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc>https://prohouse-sa.github.io/branches/al-shati/</loc>
+    <loc>https://prohouse.sa/branches/al-rawdah/</loc>
     <lastmod>2026-08-07</lastmod>
   </url>
   <url>
-    <loc>https://prohouse-sa.github.io/en/</loc>
+    <loc>https://prohouse.sa/branches/al-shati/</loc>
     <lastmod>2026-08-07</lastmod>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://prohouse-sa.github.io/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://prohouse-sa.github.io/en/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://prohouse-sa.github.io/"/>
+  </url>
+  <url>
+    <loc>https://prohouse.sa/en/</loc>
+    <lastmod>2026-08-07</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://prohouse.sa/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://prohouse.sa/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://prohouse.sa/"/>
   </url>
 </urlset>
