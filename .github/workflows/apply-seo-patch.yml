@@ -1,0 +1,101 @@
+name: Apply Pro House SEO improvements
+
+on:
+  push:
+    branches:
+      - agent/seo-local-pages
+    paths:
+      - .seo-patch/**
+      - .github/workflows/apply-seo-patch.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/seo-local-pages
+          fetch-depth: 0
+
+      - name: Reconstruct SEO patch package
+        run: |
+          cat .seo-patch/part-* | base64 --decode > /tmp/prohouse-seo-patch.zip
+          unzip -q /tmp/prohouse-seo-patch.zip -d /tmp/prohouse-seo
+
+      - name: Apply SEO patch
+        run: python /tmp/prohouse-seo/prohouse-seo-patch/apply_seo_patch.py --repo .
+
+      - name: Remove temporary patch runner
+        run: |
+          rm -rf .seo-patch
+          rm -f .github/workflows/apply-seo-patch.yml
+
+      - name: Validate generated files
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+
+          required = [
+              'index.html',
+              'en/index.html',
+              'menu/index.html',
+              'healthy-meals-jeddah/index.html',
+              'meal-subscriptions-jeddah/index.html',
+              'branches/al-rawdah/index.html',
+              'branches/al-shati/index.html',
+              'assets/seo-pages.css',
+              'robots.txt',
+              'sitemap.xml',
+          ]
+          missing = [path for path in required if not Path(path).is_file()]
+          if missing:
+              raise SystemExit('Missing generated files: ' + ', '.join(missing))
+
+          ET.parse('sitemap.xml')
+          sitemap = Path('sitemap.xml').read_text(encoding='utf-8')
+          for expected in (
+              '/healthy-meals-jeddah/',
+              '/meal-subscriptions-jeddah/',
+              '/branches/al-rawdah/',
+              '/branches/al-shati/',
+          ):
+              if expected not in sitemap:
+                  raise SystemExit(f'Missing sitemap URL: {expected}')
+
+          robots = Path('robots.txt').read_text(encoding='utf-8')
+          if 'hasanoyouna-lab.github.io' in robots:
+              raise SystemExit('Obsolete sitemap remains in robots.txt')
+
+          for html in [path for path in required if path.endswith('.html')]:
+              text = Path(html).read_text(encoding='utf-8')
+              if '<title>' not in text or '<link rel="canonical"' not in text:
+                  raise SystemExit(f'Missing title/canonical in {html}')
+              for block in re.findall(
+                  r'<script type="application/ld\+json">(.*?)</script>',
+                  text,
+                  flags=re.S,
+              ):
+                  json.loads(block)
+
+          print('SEO validation passed.')
+          PY
+
+      - name: Commit generated site changes
+        run: |
+          git config user.name "Pro House Automation"
+          git config user.email "noreply@prohouse.local"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Improve local SEO and add branch landing pages"
+          git push origin HEAD:agent/seo-local-pages
