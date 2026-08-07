@@ -2,4 +2,3 @@ User-agent: *
 Allow: /
 
 Sitemap: https://prohouse-sa.github.io/sitemap.xml
-Sitemap: https://hasanoyouna-lab.github.io/prohouse-site/sitemap.xml
