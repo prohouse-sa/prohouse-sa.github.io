@@ -65,6 +65,13 @@
 
     if (explicit === 'trial_offer_whatsapp') {
       sendEvent('generate_lead', Object.assign({ lead_source: 'trial_offer_whatsapp', offer_name: '3_chicken_meals_65' }, common));
+    } else if (explicit && explicit.indexOf('trial_offer_') === 0) {
+      sendEvent('select_promotion', Object.assign({
+        promotion_id: 'trial_3_chicken_65',
+        promotion_name: '3_chicken_meals_65',
+        creative_slot: explicit,
+        items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
+      }, common));
     } else if (href.indexOf('app.techrar.com/prohouse') !== -1) {
       sendEvent('generate_lead', Object.assign({ lead_source: 'subscription_store' }, common));
     } else if (href.indexOf('wa.me/') !== -1 || href.indexOf('iwtsp.com/') !== -1) {
@@ -77,6 +84,24 @@
       sendEvent('app_store_click', common);
     }
   }, { passive: true });
+
+  /* --- promotion visibility -------------------------------------------- */
+  var promotion = document.querySelector('[data-promotion-id="trial_3_chicken_65"]');
+  if (promotion && 'IntersectionObserver' in window) {
+    var promotionSeen = false;
+    var promotionObserver = new IntersectionObserver(function (entries) {
+      if (!promotionSeen && entries[0] && entries[0].isIntersecting) {
+        promotionSeen = true;
+        sendEvent('view_promotion', {
+          promotion_id: 'trial_3_chicken_65',
+          promotion_name: '3_chicken_meals_65',
+          items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
+        });
+        promotionObserver.disconnect();
+      }
+    }, { threshold: 0.35 });
+    promotionObserver.observe(promotion);
+  }
 
   /* --- scroll reveal ---------------------------------------------------- */
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
