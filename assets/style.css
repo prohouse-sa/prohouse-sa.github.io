@@ -284,6 +284,15 @@ section{padding-block:clamp(64px,8.5vw,var(--s10))}
   background:var(--yellow);border-radius:var(--r-md);
   font-weight:800;font-size:19px;margin-bottom:var(--s4);
 }
+.plan-featured{border:2px solid var(--black);position:relative;overflow:hidden}
+.plan-featured::after{
+  content:"";position:absolute;width:120px;height:120px;border-radius:50%;
+  background:var(--yellow);opacity:.34;inset-inline-end:-45px;top:-48px;pointer-events:none;
+}
+.plan-badge{
+  display:inline-flex;background:var(--black);color:var(--white);border-radius:var(--r-pill);
+  padding:7px 12px;font-size:13px;font-weight:800;margin-bottom:var(--s4);position:relative;z-index:1;
+}
 
 /* offer chips */
 .offer{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
