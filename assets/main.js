@@ -133,21 +133,28 @@
   }, { passive: true });
 
   /* --- promotion visibility -------------------------------------------- */
+  function trackTrialOfferView() {
+    sendEvent('view_promotion', {
+      promotion_id: 'trial_3_chicken_65',
+      promotion_name: '3_chicken_meals_65',
+      content_name: '3_chicken_meals_65',
+      content_type: 'product',
+      value: 65,
+      currency: 'SAR',
+      items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
+    });
+  }
+
   var promotion = document.querySelector('[data-promotion-id="trial_3_chicken_65"]');
-  if (promotion && 'IntersectionObserver' in window) {
+  if (window.location.pathname === '/offers/3-chicken-meals-65/' ||
+      window.location.pathname === '/offers/3-chicken-meals-65/index.html') {
+    trackTrialOfferView();
+  } else if (promotion && 'IntersectionObserver' in window) {
     var promotionSeen = false;
     var promotionObserver = new IntersectionObserver(function (entries) {
       if (!promotionSeen && entries[0] && entries[0].isIntersecting) {
         promotionSeen = true;
-        sendEvent('view_promotion', {
-          promotion_id: 'trial_3_chicken_65',
-          promotion_name: '3_chicken_meals_65',
-          content_name: '3_chicken_meals_65',
-          content_type: 'product',
-          value: 65,
-          currency: 'SAR',
-          items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
-        });
+        trackTrialOfferView();
         promotionObserver.disconnect();
       }
     }, { threshold: 0.35 });
