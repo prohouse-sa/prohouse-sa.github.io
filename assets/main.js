@@ -3,6 +3,27 @@
 (function () {
   'use strict';
 
+  /* --- Meta Pixel ------------------------------------------------------ */
+  var META_PIXEL_ID = '522459347054271';
+  !function (f, b, e, v, n, t, s) {
+    if (f.fbq) return;
+    n = f.fbq = function () {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+    };
+    if (!f._fbq) f._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = '2.0';
+    n.queue = [];
+    t = b.createElement(e);
+    t.async = true;
+    t.src = v;
+    s = b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t, s);
+  }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', META_PIXEL_ID);
+  window.fbq('track', 'PageView');
+
   /* --- mobile nav ------------------------------------------------------ */
   var toggle = document.querySelector('.nav-toggle');
   var links = document.querySelector('.nav-links');
@@ -30,7 +51,7 @@
   }
 
   /* --- campaign attribution -------------------------------------------- */
-  var trackedParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'];
+  var trackedParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
   var params = new URLSearchParams(window.location.search);
   var campaign = {};
   trackedParams.forEach(function (key) {
@@ -44,14 +65,31 @@
   }
 
   function sendEvent(name, values) {
-    if (typeof window.gtag !== 'function') return;
-    var payload = values || {};
+    var payload = Object.assign({}, values || {});
     payload.page_path = window.location.pathname;
     payload.utm_source = campaign.utm_source || '(direct)';
     payload.utm_medium = campaign.utm_medium || '(none)';
     payload.utm_campaign = campaign.utm_campaign || '(not set)';
     payload.utm_term = campaign.utm_term || '(not set)';
-    window.gtag('event', name, payload);
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', name, payload);
+    }
+
+    if (typeof window.fbq !== 'function') return;
+    if (name === 'generate_lead') {
+      window.fbq('track', 'Lead', payload);
+    } else if (name === 'contact') {
+      window.fbq('track', 'Contact', payload);
+    } else if (name === 'view_promotion') {
+      window.fbq('track', 'ViewContent', payload);
+    } else if (name === 'select_promotion') {
+      window.fbq('trackCustom', 'SelectPromotion', payload);
+    } else if (name === 'get_directions') {
+      window.fbq('trackCustom', 'GetDirections', payload);
+    } else if (name === 'app_store_click') {
+      window.fbq('trackCustom', 'AppStoreClick', payload);
+    }
   }
 
   document.addEventListener('click', function (event) {
@@ -64,7 +102,13 @@
     var common = { link_url: href, link_text: text };
 
     if (explicit === 'trial_offer_whatsapp') {
-      sendEvent('generate_lead', Object.assign({ lead_source: 'trial_offer_whatsapp', offer_name: '3_chicken_meals_65' }, common));
+      sendEvent('generate_lead', Object.assign({
+        lead_source: 'trial_offer_whatsapp',
+        offer_name: '3_chicken_meals_65',
+        content_name: '3_chicken_meals_65',
+        value: 65,
+        currency: 'SAR'
+      }, common));
     } else if (explicit && explicit.indexOf('trial_offer_') === 0) {
       sendEvent('select_promotion', Object.assign({
         promotion_id: 'trial_3_chicken_65',
@@ -73,7 +117,10 @@
         items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
       }, common));
     } else if (href.indexOf('app.techrar.com/prohouse') !== -1) {
-      sendEvent('generate_lead', Object.assign({ lead_source: 'subscription_store' }, common));
+      sendEvent('generate_lead', Object.assign({
+        lead_source: 'subscription_store',
+        content_name: 'meal_subscription'
+      }, common));
     } else if (href.indexOf('wa.me/') !== -1 || href.indexOf('iwtsp.com/') !== -1) {
       sendEvent('contact', Object.assign({ contact_method: 'whatsapp' }, common));
     } else if (href.indexOf('tel:') === 0) {
@@ -95,6 +142,10 @@
         sendEvent('view_promotion', {
           promotion_id: 'trial_3_chicken_65',
           promotion_name: '3_chicken_meals_65',
+          content_name: '3_chicken_meals_65',
+          content_type: 'product',
+          value: 65,
+          currency: 'SAR',
           items: [{ item_id: 'trial_3_chicken_65', item_name: '3 وجبات دجاج بـ65 ريال' }]
         });
         promotionObserver.disconnect();
