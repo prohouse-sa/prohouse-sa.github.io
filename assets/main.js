@@ -51,7 +51,10 @@
   }
 
   /* --- campaign attribution -------------------------------------------- */
-  var trackedParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
+  var trackedParams = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+    'gclid', 'gbraid', 'wbraid', 'fbclid', 'ttclid'
+  ];
   var params = new URLSearchParams(window.location.search);
   var campaign = {};
   trackedParams.forEach(function (key) {
@@ -63,6 +66,44 @@
   } else {
     try { campaign = JSON.parse(sessionStorage.getItem('prohouse_campaign_context') || '{}'); } catch (e) { campaign = {}; }
   }
+
+  /* --- subscription product CTAs ---------------------------------------
+     Every [data-subscription-cta] link already carries a working href in the
+     markup, so it functions with JavaScript disabled. Here we only append the
+     campaign parameters carried in the current URL (or the stored session
+     context) so attribution survives the hop to the storefront. */
+  var SUBSCRIPTION_PRODUCT_ID = '12432';
+  var SUBSCRIPTION_PRODUCT_NAME = 'وجبتين برو - 150 جم بروتين + 150 جم كارب + سناك';
+
+  function decorateSubscriptionUrl(baseHref) {
+    var url;
+    try {
+      url = new URL(baseHref, window.location.href);
+    } catch (e) {
+      return baseHref;
+    }
+    trackedParams.forEach(function (key) {
+      // never overwrite a parameter the href already sets deliberately
+      if (campaign[key] && !url.searchParams.has(key)) {
+        url.searchParams.set(key, campaign[key]);
+      }
+    });
+    return url.toString();
+  }
+
+  function refreshSubscriptionCtas() {
+    var ctas = document.querySelectorAll('[data-subscription-cta]');
+    Array.prototype.forEach.call(ctas, function (el) {
+      var base = el.getAttribute('data-subscription-href') || el.getAttribute('href');
+      if (!base) return;
+      if (!el.getAttribute('data-subscription-href')) {
+        el.setAttribute('data-subscription-href', base);
+      }
+      el.setAttribute('href', decorateSubscriptionUrl(base));
+    });
+  }
+
+  refreshSubscriptionCtas();
 
   function sendEvent(name, values) {
     var payload = Object.assign({}, values || {});
@@ -100,6 +141,31 @@
     var explicit = link.getAttribute('data-track');
     var text = (link.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 100);
     var common = { link_url: href, link_text: text };
+
+    var subscriptionCta = link.getAttribute('data-subscription-cta');
+    if (subscriptionCta) {
+      // Re-decorate at click time in case the campaign context arrived late.
+      var base = link.getAttribute('data-subscription-href') || href;
+      var destination = decorateSubscriptionUrl(base);
+      link.setAttribute('href', destination);
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'subscription_cta_click',
+        product_id: SUBSCRIPTION_PRODUCT_ID,
+        product_name: SUBSCRIPTION_PRODUCT_NAME,
+        cta_location: subscriptionCta,
+        destination_url: destination
+      });
+
+      sendEvent('generate_lead', Object.assign({
+        lead_source: 'subscription_product',
+        content_name: 'pro_two_meals_snack',
+        content_ids: [SUBSCRIPTION_PRODUCT_ID],
+        cta_location: subscriptionCta
+      }, common, { link_url: destination }));
+      return;
+    }
 
     if (explicit === 'trial_offer_whatsapp') {
       sendEvent('generate_lead', Object.assign({
