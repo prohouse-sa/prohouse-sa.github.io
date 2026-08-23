@@ -284,7 +284,6 @@ section{padding-block:clamp(64px,8.5vw,var(--s10))}
   background:var(--yellow);border-radius:var(--r-md);
   font-weight:800;font-size:19px;margin-bottom:var(--s4);
 }
-
 /* offer chips */
 .offer{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .offer li{
@@ -500,7 +499,6 @@ section{padding-block:clamp(64px,8.5vw,var(--s10))}
   .hero-badge{position:static;margin-top:var(--s4);max-width:none}
   .hero-blob{inset-block-start:-8%;width:80vw}
   .facts{margin-top:var(--s7)}
-
   /* Fingers are not cursors: give every tappable link a ~44px target. */
   .site-footer ul a,
   .contact-card a,
